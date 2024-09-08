@@ -3,7 +3,8 @@ import { Pub } from "./pub";
 import { resolve } from "path";
 
 const endingTime = process.argv[2] ? parseInt(process.argv[2]) : 100;
-const log = process.argv[3] === 'log';
+const stats = process.argv[3] === 'stats';
+const log = process.argv[4] === 'log';
 
 const readData = (table: string) => readFileSync(resolve(__dirname, `../data/${table}`), 'utf-8').split('\n').map(Number);
 
@@ -19,8 +20,14 @@ if(arrivals.length !== thirsts.length || thirsts.length !== drinkingTimes.length
 const pub = new Pub(arrivals, servingTimes, drinkingTimes, thirsts, log);
 
 
-pub.printStats();
-while(pub.currentTick < endingTime) {
-    pub.tick();
+if(stats){
     pub.printStats();
 }
+while(pub.currentTick < endingTime) {
+    pub.tick();
+    if(stats){
+        pub.printStats();
+    }
+}
+
+console.log(pub.analyze());

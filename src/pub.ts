@@ -1,6 +1,13 @@
 import { Client } from "./client";
 import { Waitress, WaitressState } from "./waitress";
 
+export interface PubStats {
+    averageWaitingTime: number;
+    availableAverageTime: string;
+    servingAverageTime: string;
+    washingAverageTime: string;
+}
+
 export class Pub {
     public currentTick: number = 0;
     private dirtyCups: number = 0;
@@ -10,6 +17,7 @@ export class Pub {
     private waitingInBar: Client[] = [];
     private drinking: Client[] = [];
     private transitionLine: Client[] = []
+    private clientsOutOfBar: Client[] = [];
 
 
     constructor(arrivalTimes: number[], servingTime: number[], drinkingTimes: number[], thirsts: number[], private shouldLog: boolean = false) {
@@ -17,6 +25,19 @@ export class Pub {
         for (let i = 0; i < arrivalTimes.length; i++) {
             this.clients.push(new Client(absoluteArrivalTime + arrivalTimes[i], thirsts[i], drinkingTimes[i], servingTime[i]));
             absoluteArrivalTime += arrivalTimes[i];
+        }
+    }
+
+    public analyze(): PubStats {
+        const averageWaitingTime = this.clientsOutOfBar.reduce((acc, client) => acc + client.waitingTime, 0) / this.clientsOutOfBar.length || 0;
+        const availableAverageTime = this.waitress.reduce((acc, waitress) => acc + waitress.activityRecords[WaitressState.AVAILABLE], 0) / this.waitress.length;
+        const servingAverageTime = this.waitress.reduce((acc, waitress) => acc + waitress.activityRecords[WaitressState.SERVING], 0) / this.waitress.length;
+        const washingAverageTime = this.waitress.reduce((acc, waitress) => acc + waitress.activityRecords[WaitressState.WASHING], 0) / this.waitress.length;
+        return {
+            averageWaitingTime,
+            availableAverageTime: `${availableAverageTime} / ${(availableAverageTime / this.currentTick) * 100}%`,
+            servingAverageTime: `${servingAverageTime} / ${(servingAverageTime / this.currentTick) * 100}%`,
+            washingAverageTime: `${washingAverageTime} / ${(washingAverageTime / this.currentTick) * 100}%`
         }
     }
 
@@ -49,6 +70,9 @@ export class Pub {
             client.thirst--;
             if(client.thirst > 0) {
                 this.transitionLine.push(client);
+            } else {
+                this.log(`Client left the pub`);
+                this.clientsOutOfBar.push(client);
             }
             this.drinking.splice(this.drinking.indexOf(client), 1);
         });
@@ -76,6 +100,7 @@ export class Pub {
 
 
 
+        this.line.forEach((client) => client.waitingTime++);
         const availableWaitressess = this.waitress.filter(waitress => waitress.state === WaitressState.AVAILABLE);
         availableWaitressess.forEach(waitress => {
             const client = this.line.shift();
@@ -91,6 +116,9 @@ export class Pub {
             this.line.push(client);
             this.clients.splice(this.clients.indexOf(client), 1);
         });
+
+        this.waitress.forEach(waitress => waitress.updateActivityRecords());
+
     }
 
     private log(msg: string): void {
