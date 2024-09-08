@@ -40,7 +40,8 @@ export class Pub {
         this.line = this.line.concat(this.transitionLine);
         this.transitionLine = [];
 
-        this.drinking.forEach((client) => client.drinkingTime--);
+        this.log(`Clients drinking time: ${this.drinking.map(client => client.drinkingTime)}`);
+        this.drinking.filter((client) => client.drinkingTime > 0).forEach((client) => client.drinkingTime--);
         const finishedDrinking = this.drinking.filter(client => client.drinkingTime === 0);
         this.log(`Clients finished drinking: ${finishedDrinking.length}. Dirty cups: ${this.dirtyCups}`);
         finishedDrinking.forEach(client => {
@@ -52,7 +53,7 @@ export class Pub {
             this.drinking.splice(this.drinking.indexOf(client), 1);
         });
 
-        this.waitress.forEach((waitress) => waitress.busyTime--);
+        this.waitress.filter((waitress) => waitress.busyTime > 0).forEach((waitress) => waitress.busyTime--);
         this.log(`Waitressess busy time: ${this.waitress.map(waitress => waitress.busyTime)}`);
 
         this.waitress.filter(waitress => waitress.busyTime === 0).forEach(waitress => waitress.state = WaitressState.AVAILABLE);
@@ -66,7 +67,7 @@ export class Pub {
             this.dirtyCups -= 10;
         }
 
-        this.waitingInBar.forEach((client) => client.servingTime--);
+        this.waitingInBar.filter((client) => client.servingTime > 0).forEach((client) => client.servingTime--);
         this.log(`Clients waiting in bar: ${this.waitingInBar.length}. Waiting times: ${this.waitingInBar.map(client => client.servingTime)}`);
         this.waitingInBar.filter(client => client.servingTime === 0).forEach(client => {
             this.drinking.push(client);
