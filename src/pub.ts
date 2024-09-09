@@ -6,6 +6,16 @@ export interface PubStats {
     availableAverageTime: string;
     servingAverageTime: string;
     washingAverageTime: string;
+    history: PubState[];
+}
+
+export interface PubState {
+    currentTick: number;
+    waitress: WaitressState[];
+    line: number;
+    waitingInBar: number;
+    drinking: number;
+    dirtyCups: number;
 }
 
 export class Pub {
@@ -18,6 +28,7 @@ export class Pub {
     private drinking: Client[] = [];
     private transitionLine: Client[] = []
     private clientsOutOfBar: Client[] = [];
+    private stateHistory: PubState[] = [];
 
 
     constructor(arrivalTimes: number[], servingTime: number[], drinkingTimes: number[], thirsts: number[], private shouldLog: boolean = false) {
@@ -38,7 +49,8 @@ export class Pub {
             averageWaitingTime,
             availableAverageTime: `${availableAverageTime} / ${(availableAverageTime / this.currentTick) * 100}%`,
             servingAverageTime: `${servingAverageTime} / ${(servingAverageTime / this.currentTick) * 100}%`,
-            washingAverageTime: `${washingAverageTime} / ${(washingAverageTime / this.currentTick) * 100}%`
+            washingAverageTime: `${washingAverageTime} / ${(washingAverageTime / this.currentTick) * 100}%`,
+            history: this.stateHistory
         }
     }
 
@@ -65,6 +77,7 @@ export class Pub {
         this.handleClientsWaitingInLine();
         this.handleNewClients();
         this.updateWaitressesActivityRecords();
+        this.storeTickState();
     }
 
     private handleTransitionLine(): void {
@@ -145,5 +158,16 @@ export class Pub {
         if(this.shouldLog){
             console.log(`[ LOG ] ${msg}`);
         }
+    }
+
+    private storeTickState(): void {
+        this.stateHistory.push({
+            currentTick: this.currentTick,
+            waitress: this.waitress.map(waitress => waitress.state),
+            line: this.line.length,
+            waitingInBar: this.waitingInBar.length,
+            drinking: this.drinking.length,
+            dirtyCups: this.dirtyCups
+        });
     }
 }
