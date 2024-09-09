@@ -29,6 +29,7 @@ export class Pub {
     }
 
     public analyze(): PubStats {
+        
         const averageWaitingTime = this.clientsOutOfBar.reduce((acc, client) => acc + client.waitingTime, 0) / this.clientsOutOfBar.length || 0;
         const availableAverageTime = this.waitress.reduce((acc, waitress) => acc + waitress.activityRecords[WaitressState.AVAILABLE], 0) / this.waitress.length;
         const servingAverageTime = this.waitress.reduce((acc, waitress) => acc + waitress.activityRecords[WaitressState.SERVING], 0) / this.waitress.length;
@@ -56,11 +57,23 @@ export class Pub {
     public tick(): void {
 
         this.currentTick++;
+        this.handleTransitionLine();
+        this.handleClientsDrinking();
+        this.handleWaitressesBusyTime();
+        this.handleWashing();
+        this.handleClientsWaitingAtBar();
+        this.handleClientsWaitingInLine();
+        this.handleNewClients();
+        this.updateWaitressesActivityRecords();
+    }
 
+    private handleTransitionLine(): void {
         this.log(`Moving clients from transition line to line: ${this.transitionLine.length}`);
         this.line = this.line.concat(this.transitionLine);
         this.transitionLine = [];
+    }
 
+    private handleClientsDrinking(): void {
         this.log(`Clients drinking time: ${this.drinking.map(client => client.drinkingTime)}`);
         this.drinking.filter((client) => client.drinkingTime > 0).forEach((client) => client.drinkingTime--);
         const finishedDrinking = this.drinking.filter(client => client.drinkingTime === 0);
@@ -76,30 +89,34 @@ export class Pub {
             }
             this.drinking.splice(this.drinking.indexOf(client), 1);
         });
+    }
 
+    private handleWaitressesBusyTime(): void {
         this.waitress.filter((waitress) => waitress.busyTime > 0).forEach((waitress) => waitress.busyTime--);
         this.log(`Waitressess busy time: ${this.waitress.map(waitress => waitress.busyTime)}`);
-
         this.waitress.filter(waitress => waitress.busyTime === 0).forEach(waitress => waitress.state = WaitressState.AVAILABLE);
-
         this.log(`Available waitressess: ${this.waitress.filter(waitress => waitress.state === WaitressState.AVAILABLE).length}`);
+    }
 
+    private handleWashing(): void {
         let availableWaitress = this.waitress.find(waitress => waitress.state === WaitressState.AVAILABLE);
         if(availableWaitress && this.dirtyCups >= 10) {
             this.log(`Setting waitress to wash`);
             availableWaitress.wash();
             this.dirtyCups -= 10;
         }
+    }
 
+    private handleClientsWaitingAtBar(): void {
         this.waitingInBar.filter((client) => client.servingTime > 0).forEach((client) => client.servingTime--);
         this.log(`Clients waiting in bar: ${this.waitingInBar.length}. Waiting times: ${this.waitingInBar.map(client => client.servingTime)}`);
         this.waitingInBar.filter(client => client.servingTime === 0).forEach(client => {
             this.drinking.push(client);
             this.waitingInBar.splice(this.waitingInBar.indexOf(client), 1);
         })
+    }
 
-
-
+    private handleClientsWaitingInLine(): void {
         this.line.forEach((client) => client.waitingTime++);
         const availableWaitressess = this.waitress.filter(waitress => waitress.state === WaitressState.AVAILABLE);
         availableWaitressess.forEach(waitress => {
@@ -110,15 +127,18 @@ export class Pub {
                 this.waitingInBar.push(client);
             }
         });
+    }
 
+    private handleNewClients(): void {
         this.clients.filter(client => client.arrivalTime === this.currentTick).forEach(client => {
             this.log(`Client arrived`);
             this.line.push(client);
             this.clients.splice(this.clients.indexOf(client), 1);
         });
+    }
 
+    private updateWaitressesActivityRecords(): void {
         this.waitress.forEach(waitress => waitress.updateActivityRecords());
-
     }
 
     private log(msg: string): void {
