@@ -1,12 +1,9 @@
 import { createCanvas } from "canvas";
 import { PubStats } from "./pub";
-import { BarController, BarElement, CategoryScale, Chart, ChartConfiguration, LineController, LineElement, LinearScale, PointElement } from "chart.js";
+import { BarController, BarElement, CategoryScale, Chart, ChartConfiguration, Legend, LineController, LineElement, LinearScale, PointElement } from "chart.js";
 import { WaitressState } from "./waitress";
 import { createWriteStream } from "fs";
 import { resolve } from "path";
-
-const WIDTH = 10000;
-const HEIGHT = 3000;
 
 const numberToState = {
     0: WaitressState.AVAILABLE,
@@ -22,6 +19,9 @@ const stateToNumber = {
 
 
 export function report(pubStats: PubStats): void {
+
+    Chart.register(BarController, LineController, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Legend);
+
     const waitress1States = pubStats.history.map((pubState) => pubState.waitress[0]).map((state) => stateToNumber[state]);
     const waitress2States = pubStats.history.map((pubState) => pubState.waitress[1]).map((state) => stateToNumber[state]);
 
@@ -29,11 +29,22 @@ export function report(pubStats: PubStats): void {
 
     const measureChartConfig: ChartConfiguration = {
         type: "bar",
+        plugins: [{
+            id: 'custom_canvas_background_color',
+            beforeDraw: (chart) => {
+                const ctx = chart.canvas.getContext('2d');
+                ctx!.save();
+                ctx!.globalCompositeOperation = 'destination-over';
+                ctx!.fillStyle = 'white'; // Change this to your desired color
+                ctx!.fillRect(0, 0, chart.width, chart.height);
+                ctx!.restore();
+            }
+        }],
         data: {
             labels: ["Number of clients", "Average waiting time", "Available average time", "Serving average time", "Washing average time"],
             datasets: [
                 {
-                    label: "Pub Stats",
+                    label: "Stats",
                     data: [
                         pubStats.numberOfClients,
                         pubStats.averageWaitingTime,
@@ -44,18 +55,34 @@ export function report(pubStats: PubStats): void {
                     backgroundColor: ["red", "blue", "green", "purple", "orange"],
                 },
             ],
-        },
+        }
     };
 
 
     const historyChartConfig: ChartConfiguration = {
         type: "line",
+        plugins: [{
+            id: 'custom_canvas_background_color',
+            beforeDraw: (chart) => {
+                const ctx = chart.canvas.getContext('2d');
+                ctx!.save();
+                ctx!.globalCompositeOperation = 'destination-over';
+                ctx!.fillStyle = 'white'; // Change this to your desired color
+                ctx!.fillRect(0, 0, chart.width, chart.height);
+                ctx!.restore();
+            }
+        }],
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     title: {
                         display: true,
-                        text: 'Time'
+                        text: 'Time',
+                        font: {
+                            size: 40
+                        }
                     }
                 },
                 yLeft: {
@@ -63,7 +90,10 @@ export function report(pubStats: PubStats): void {
                     position: 'left',
                     title: {
                         display: true,
-                        text: 'Amount'
+                        text: 'Amount',
+                        font: {
+                            size: 40
+                        }
                     }
                 },
                 yRight: {
@@ -71,11 +101,30 @@ export function report(pubStats: PubStats): void {
                     position: 'right',
                     title: {
                         display: true,
-                        text: 'Waitress State'
+                        text: 'Waitress State',
+                        font: {
+                            size: 40
+                        }
                     },
                     ticks: {
                         stepSize: 1,
                         callback: (value) => numberToState[value as keyof typeof numberToState],
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Chart Title',
+                    font: {
+                        size: 40
+                    }
+                },
+                legend: {
+                    labels: {
+                        font: {
+                            size: 30
+                        }
                     }
                 }
             }
@@ -84,7 +133,7 @@ export function report(pubStats: PubStats): void {
             labels: pubStats.history.map((pubState) => pubState.currentTick),
             datasets: [
                 {
-                    label: "Number of clients",
+                    label: "Number of clients in line",
                     data: pubStats.history.map((pubState) => pubState.line),
                     borderColor: "red",
                     fill: false,
@@ -130,11 +179,9 @@ export function report(pubStats: PubStats): void {
     }
 
 
-
-
-    Chart.register(BarController, LineController, CategoryScale, LinearScale, BarElement, PointElement, LineElement);
-
-    const canvasMeasures = createCanvas(WIDTH, HEIGHT);
+    const widthMeasures = 800;
+    const heightMeasures = 400;
+    const canvasMeasures = createCanvas(widthMeasures, heightMeasures);
     const contextMeasures = canvasMeasures.getContext("2d");
     new Chart(contextMeasures as any, measureChartConfig);
     const outFile = createWriteStream(resolve(__dirname, '../output-measures.png'));
@@ -142,7 +189,9 @@ export function report(pubStats: PubStats): void {
     stream.pipe(outFile);
     outFile.on('finish', () => console.log('The file was created.'));
 
-    const canvasHistory = createCanvas(WIDTH, HEIGHT);
+    const witdhHistory = 8000;
+    const heightHistory = 2000;
+    const canvasHistory = createCanvas(witdhHistory, heightHistory);
     const contextHistory = canvasHistory.getContext("2d");
     new Chart(contextHistory as any, historyChartConfig);
     const outFile2 = createWriteStream(resolve(__dirname, '../output-history.png'));

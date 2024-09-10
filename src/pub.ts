@@ -38,6 +38,7 @@ export class Pub {
             this.clients.push(new Client(absoluteArrivalTime + arrivalTimes[i], thirsts[i], drinkingTimes[i], servingTime[i]));
             absoluteArrivalTime += arrivalTimes[i];
         }
+        this.storeTickState();
     }
 
     public analyze(): PubStats {
