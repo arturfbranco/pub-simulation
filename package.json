@@ -2,6 +2,9 @@
   "name": "pub",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": ">=20.17.0"
+  },
   "scripts": {
     "build": "rm -rf build && tsc -w",
     "start": "node build/index.js"
@@ -12,6 +15,13 @@
   "description": "",
   "dependencies": {
     "@types/node": "^22.5.2",
+    "canvas": "^2.11.2",
+    "chart.js": "^4.4.4",
+    "chartjs": "^0.3.24",
+    "nan": "^2.20.0",
     "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "@types/chart.js": "^2.9.41"
   }
 }

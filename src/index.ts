@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { Pub } from "./pub";
 import { resolve } from "path";
+import { report } from "./report";
 
 const endingTime = process.argv[2] ? parseInt(process.argv[2]) : 100;
 const stats = process.argv[3] === 'stats';
@@ -30,4 +31,19 @@ while(pub.currentTick < endingTime) {
     }
 }
 
-console.log(pub.analyze());
+const pubStats = pub.analyze();
+
+const { numberOfClients, averageWaitingTime, availableAverageTime, servingAverageTime, washingAverageTime, history } = pubStats;
+
+const reportData = {
+    numberOfClients,
+    averageWaitingTime: `${averageWaitingTime.toFixed(2)} / ${((Number(averageWaitingTime.toFixed(2)) / history.length) * 100).toFixed(2)}%`,
+    availableAverageTime: `${availableAverageTime.toFixed(2)} / ${((Number(availableAverageTime.toFixed(2)) / history.length) * 100).toFixed(2)}%`,
+    servingAverageTime: `${servingAverageTime.toFixed(2)} / ${((Number(servingAverageTime.toFixed(2)) / history.length) * 100).toFixed(2)}%`,
+    washingAverageTime: `${washingAverageTime.toFixed(2)} / ${((Number(washingAverageTime.toFixed(2)) / history.length) * 100).toFixed(2)}%`,
+}
+
+console.log(reportData);
+
+report(pubStats);
+

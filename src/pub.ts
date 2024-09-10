@@ -2,10 +2,11 @@ import { Client } from "./client";
 import { Waitress, WaitressState } from "./waitress";
 
 export interface PubStats {
+    numberOfClients: number;
     averageWaitingTime: number;
-    availableAverageTime: string;
-    servingAverageTime: string;
-    washingAverageTime: string;
+    availableAverageTime: number;
+    servingAverageTime: number;
+    washingAverageTime: number;
     history: PubState[];
 }
 
@@ -46,10 +47,11 @@ export class Pub {
         const servingAverageTime = this.waitress.reduce((acc, waitress) => acc + waitress.activityRecords[WaitressState.SERVING], 0) / this.waitress.length;
         const washingAverageTime = this.waitress.reduce((acc, waitress) => acc + waitress.activityRecords[WaitressState.WASHING], 0) / this.waitress.length;
         return {
+            numberOfClients: this.clientsOutOfBar.length,
             averageWaitingTime,
-            availableAverageTime: `${availableAverageTime} / ${(availableAverageTime / this.currentTick) * 100}%`,
-            servingAverageTime: `${servingAverageTime} / ${(servingAverageTime / this.currentTick) * 100}%`,
-            washingAverageTime: `${washingAverageTime} / ${(washingAverageTime / this.currentTick) * 100}%`,
+            availableAverageTime,
+            servingAverageTime,
+            washingAverageTime,
             history: this.stateHistory
         }
     }
