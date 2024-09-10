@@ -35,7 +35,7 @@ export class Pub {
     constructor(arrivalTimes: number[], servingTime: number[], drinkingTimes: number[], thirsts: number[], private shouldLog: boolean = false) {
         let absoluteArrivalTime = 0;
         for (let i = 0; i < arrivalTimes.length; i++) {
-            this.clients.push(new Client(absoluteArrivalTime + arrivalTimes[i], thirsts[i], drinkingTimes[i], servingTime[i]));
+            this.clients.push(new Client(absoluteArrivalTime + arrivalTimes[i], thirsts[i] ?? 10, drinkingTimes[i] ?? 10, servingTime[i] ?? 10));
             absoluteArrivalTime += arrivalTimes[i];
         }
         this.storeTickState();
