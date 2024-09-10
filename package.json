@@ -15,12 +15,10 @@
   "description": "",
   "dependencies": {
     "canvas": "^2.11.2",
-    "chart.js": "^4.4.4",
-    "chartjs": "^0.3.24",
-    "nan": "^2.20.0",
-    "typescript": "^5.5.4"
+    "chart.js": "^4.4.4"
   },
   "devDependencies": {
+    "typescript": "^5.5.4",
     "@types/node": "^22.5.2",
     "@types/chart.js": "^2.9.41"
   }
