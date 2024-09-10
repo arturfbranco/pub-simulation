@@ -187,7 +187,7 @@ export function report(pubStats: PubStats): void {
     const outFile = createWriteStream(resolve(__dirname, '../output-measures.png'));
     const stream = canvasMeasures.createPNGStream();
     stream.pipe(outFile);
-    outFile.on('finish', () => console.log('The file was created.'));
+    outFile.on('finish', () => console.log('Measures chart created.'));
 
     const witdhHistory = 8000;
     const heightHistory = 2000;
@@ -197,5 +197,5 @@ export function report(pubStats: PubStats): void {
     const outFile2 = createWriteStream(resolve(__dirname, '../output-history.png'));
     const stream2 = canvasHistory.createPNGStream();
     stream2.pipe(outFile2);
-    outFile2.on('finish', () => console.log('The file was created.'));
+    outFile2.on('finish', () => console.log('History chart created.'));
 }
