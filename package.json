@@ -14,7 +14,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@types/node": "^22.5.2",
     "canvas": "^2.11.2",
     "chart.js": "^4.4.4",
     "chartjs": "^0.3.24",
@@ -22,6 +21,7 @@
     "typescript": "^5.5.4"
   },
   "devDependencies": {
+    "@types/node": "^22.5.2",
     "@types/chart.js": "^2.9.41"
   }
 }
