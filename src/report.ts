@@ -189,7 +189,7 @@ export function report(pubStats: PubStats): void {
     stream.pipe(outFile);
     outFile.on('finish', () => console.log('Measures chart created.'));
 
-    const witdhHistory = 8000;
+    const witdhHistory = 20000;
     const heightHistory = 2000;
     const canvasHistory = createCanvas(witdhHistory, heightHistory);
     const contextHistory = canvasHistory.getContext("2d");

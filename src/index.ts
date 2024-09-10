@@ -14,10 +14,6 @@ const thirsts = readData('table_3_7');
 const drinkingTimes = readData('table_3_8');
 const servingTimes = readData('table_3_9');
 
-if(arrivals.length !== thirsts.length || thirsts.length !== drinkingTimes.length || drinkingTimes.length !== servingTimes.length) {
-    throw new Error(`All tables must have the same length. Got ${arrivals.length}, ${thirsts.length}, ${drinkingTimes.length}, ${servingTimes.length}`);
-}
-
 const pub = new Pub(arrivals, servingTimes, drinkingTimes, thirsts, log);
 
 
