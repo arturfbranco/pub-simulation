@@ -17,6 +17,7 @@ export interface PubState {
     waitingInBar: number;
     drinking: number;
     dirtyCups: number;
+    clientsInside: number;
 }
 
 export class Pub {
@@ -32,13 +33,24 @@ export class Pub {
     private stateHistory: PubState[] = [];
 
 
-    constructor(arrivalTimes: number[], servingTime: number[], drinkingTimes: number[], thirsts: number[], private shouldLog: boolean = false) {
-        let absoluteArrivalTime = 0;
-        for (let i = 0; i < arrivalTimes.length; i++) {
-            this.clients.push(new Client(absoluteArrivalTime + arrivalTimes[i], thirsts[i] ?? 10, drinkingTimes[i] ?? 10, servingTime[i] ?? 10));
-            absoluteArrivalTime += arrivalTimes[i];
+    constructor(numberOfClients: number, private shouldLog: boolean = false) {
+        let absoluteArrivalTime = 1;
+        for (let i = 0; i < numberOfClients; i++) {
+            const arrivalTime = this.getRandomNumber(0, 25, "arrival time");
+            this.clients.push(new Client(arrivalTime + absoluteArrivalTime, this.getRandomNumber(1, 4, "thirst"), this.getRandomNumber(5, 8, "drinking time"), this.getRandomNumber(5, 7, "serving time")));
+            absoluteArrivalTime += arrivalTime;
         }
         this.storeTickState();
+    }
+
+    private getClientsInside(): number {
+        return this.line.length + this.waitingInBar.length + this.drinking.length;
+    }
+
+    private getRandomNumber(min: number, max: number, reason: string) {
+        const value = Math.floor(Math.random() * max) + min;
+        this.log(`Generated value for ${reason}: ${value}`);
+        return value;
     }
 
     public analyze(): PubStats {
@@ -170,7 +182,8 @@ export class Pub {
             line: this.line.length,
             waitingInBar: this.waitingInBar.length,
             drinking: this.drinking.length,
-            dirtyCups: this.dirtyCups
+            dirtyCups: this.dirtyCups,
+            clientsInside: this.getClientsInside()
         });
     }
 }

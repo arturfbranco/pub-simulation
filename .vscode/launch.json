@@ -12,7 +12,7 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/src/index.ts",
-            "args": ["400", "stats", "log"],
+            "args": ["400", "50", "stats", "log"],
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]

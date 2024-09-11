@@ -17,6 +17,15 @@ const stateToNumber = {
     [WaitressState.WASHING]: 2,
 };
 
+const whiteBackground = (chart: Chart) => {
+    const ctx = chart.canvas.getContext('2d');
+    ctx!.save();
+    ctx!.globalCompositeOperation = 'destination-over';
+    ctx!.fillStyle = 'white';
+    ctx!.fillRect(0, 0, chart.width, chart.height);
+    ctx!.restore();
+}
+
 
 export function report(pubStats: PubStats): void {
 
@@ -31,14 +40,7 @@ export function report(pubStats: PubStats): void {
         type: "bar",
         plugins: [{
             id: 'custom_canvas_background_color',
-            beforeDraw: (chart) => {
-                const ctx = chart.canvas.getContext('2d');
-                ctx!.save();
-                ctx!.globalCompositeOperation = 'destination-over';
-                ctx!.fillStyle = 'white'; // Change this to your desired color
-                ctx!.fillRect(0, 0, chart.width, chart.height);
-                ctx!.restore();
-            }
+            beforeDraw: whiteBackground
         }],
         data: {
             labels: ["Number of clients", "Average waiting time", "Available average time", "Serving average time", "Washing average time"],
@@ -63,14 +65,7 @@ export function report(pubStats: PubStats): void {
         type: "line",
         plugins: [{
             id: 'custom_canvas_background_color',
-            beforeDraw: (chart) => {
-                const ctx = chart.canvas.getContext('2d');
-                ctx!.save();
-                ctx!.globalCompositeOperation = 'destination-over';
-                ctx!.fillStyle = 'white'; // Change this to your desired color
-                ctx!.fillRect(0, 0, chart.width, chart.height);
-                ctx!.restore();
-            }
+            beforeDraw: whiteBackground
         }],
         options: {
             responsive: true,
@@ -132,6 +127,13 @@ export function report(pubStats: PubStats): void {
         data: {
             labels: pubStats.history.map((pubState) => pubState.currentTick),
             datasets: [
+                {
+                    label: "Number of clients in bar",
+                    data: pubStats.history.map((pubState) => pubState.clientsInside),
+                    borderColor: "black",
+                    fill: false,
+                    yAxisID: 'yLeft'
+                },
                 {
                     label: "Number of clients in line",
                     data: pubStats.history.map((pubState) => pubState.line),
