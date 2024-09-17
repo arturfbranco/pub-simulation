@@ -6,7 +6,7 @@
     "node": ">=20.17.0"
   },
   "scripts": {
-    "build": "rm -rf build && tsc -w",
+    "build": "rm -rf build && npm i && npx tsc -w",
     "start": "node build/index.js"
   },
   "keywords": [],

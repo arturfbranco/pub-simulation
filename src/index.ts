@@ -2,7 +2,7 @@ import { Pub } from "./pub";
 import { report } from "./report";
 
 const endingTime = process.argv[2] ? parseInt(process.argv[2]) : 100;
-const totalClients = parseInt(process.argv[3]) || Math.floor(Math.random() + 1) + 50;
+const totalClients = parseInt(process.argv[3]) || Math.floor(Math.random() * 100) + 1;
 const stats = process.argv[4] === 'stats';
 const log = process.argv[5] === 'log';
 

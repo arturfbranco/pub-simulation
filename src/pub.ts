@@ -36,7 +36,7 @@ export class Pub {
     constructor(numberOfClients: number, private shouldLog: boolean = false) {
         let absoluteArrivalTime = 1;
         for (let i = 0; i < numberOfClients; i++) {
-            const arrivalTime = this.getRandomNumber(0, 25, "arrival time");
+            const arrivalTime = this.getRandomNumber(0, 5, "arrival time");
             this.clients.push(new Client(arrivalTime + absoluteArrivalTime, this.getRandomNumber(1, 4, "thirst"), this.getRandomNumber(5, 8, "drinking time"), this.getRandomNumber(5, 7, "serving time")));
             absoluteArrivalTime += arrivalTime;
         }
